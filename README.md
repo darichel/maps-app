@@ -57,3 +57,9 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Correr aplicacion
+1.Clonar repositorio github.
+2.Instalar dependencias.
+3.Crear en .env. basado en el env.template.
+4.Ejecutar comando `node ./scripts/set-envs.js`.
