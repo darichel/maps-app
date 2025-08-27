@@ -39,7 +39,6 @@ mapboxgl.accessToken = environment.MAPBOX_KEY;
 })
 export class FullscreenMapPageComponent implements AfterViewInit {
   divElement = viewChild<ElementRef>('map');
-
   map = signal<mapboxgl.Map | null>(null);
 
   zoom = signal(13);
