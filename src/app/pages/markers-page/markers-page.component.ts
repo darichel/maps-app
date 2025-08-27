@@ -7,8 +7,14 @@ import {
 } from '@angular/core';
 import mapboxgl from 'mapbox-gl';
 import { environment } from '../../../environments/environment.development';
+import { v4 as UUIDv4 } from "uuid";
 
 mapboxgl.accessToken = environment.MAPBOX_KEY;
+
+interface Marker {
+  id: string;
+  mapboxMarker: mapboxgl.Marker;
+}
 
 @Component({
   selector: 'app-markers-page',
@@ -17,6 +23,8 @@ mapboxgl.accessToken = environment.MAPBOX_KEY;
 })
 export class MarkersPageComponent implements AfterViewInit {
 
+  markers = signal<Marker[]>([]);
+
   divElement = viewChild<ElementRef>('map');
   map = signal<mapboxgl.Map | null>(null);
 
@@ -24,7 +32,7 @@ export class MarkersPageComponent implements AfterViewInit {
 
   coordinates = signal({
     lng: -56.19730632683175,
-    lat: -34.90383036077189
+    lat: -34.90383036077189,
   });
 
   async ngAfterViewInit() {
@@ -42,7 +50,7 @@ export class MarkersPageComponent implements AfterViewInit {
       zoom: this.zoom(),
     });
 
-    const marker = new mapboxgl.Marker({
+    /* const marker = new mapboxgl.Marker({
       draggable: false
     })
       .setLngLat([lng, lat])
@@ -50,22 +58,40 @@ export class MarkersPageComponent implements AfterViewInit {
 
     marker.on('dragend', (event) => {
       console.log(event);
-    });
+    }); */
 
     this.mapListeners(map);
   }
 
   mapListeners(map: mapboxgl.Map) {
-    map.on('zoomend', () => {
-      const newZoom = map.getZoom();
-      this.zoom.set(newZoom);
-    });
-
-    map.on('moveend', () => {
-      const center = map.getCenter();
-      this.coordinates.set(center);
-    });
+    map.on('click', (event) => this.mapClick(event));
 
     this.map.set(map);
   }
+
+  mapClick(event: mapboxgl.MapMouseEvent) {
+    if (!this.map()) return;
+    const map = this.map()!;
+    const color = '#xxxxxx'.replace(/x/g, () =>
+      ((Math.random() * 16) | 0).toString(16)
+    );
+
+    const coords = event.lngLat;
+    const marker = new mapboxgl.Marker({
+      color,
+    })
+      .setLngLat(coords)
+      .addTo(map);
+
+    const newMarker: Marker = {
+      id: UUIDv4(),
+      mapboxMarker: marker ,
+    };
+
+    //this.markers.set([newMarker, ...this.markers()]); esto es lo mismo que con el update
+    this.markers.update((current) => [newMarker, ...current]);
+
+    console.log(this.markers());
+  }
+
 }
